@@ -1,47 +1,92 @@
-use mercuria;
--- Insertar datos en MateriaPrima
-INSERT INTO MateriaPrima (Tipo, Color, Talle, CantidadStock)
-VALUES ('Remera', 'Blanco', 'M', 100),
-       ('Remera', 'Negro', 'L', 150);
+-- Creación de la base de datos
+CREATE DATABASE IF NOT EXISTS mercuria;
+USE mercuria;
 
--- Insertar datos en Estampa
-INSERT INTO Estampa (Diseño, MetrosDisponibles, CantidadUtilizada)
-VALUES ('Diseño A', 50.0, 0.0),
-       ('Diseño B', 30.0, 0.0);
+-- Tabla MateriaPrima
+CREATE TABLE MateriaPrima (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Tipo VARCHAR(50),
+    Color VARCHAR(30),
+    Talle VARCHAR(10),
+    CantidadStock INT,
+    FechaActualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
--- Insertar datos en ProductoVenta
-INSERT INTO ProductoVenta (Tipo, PrecioVenta, CostoProduccion, StockVenta, EstampaID)
-VALUES ('Remera Estampada', 25.0, 15.0, 50, 1),
-       ('Taza Estampada', 10.0, 5.0, 100, 2);
+-- Tabla Estampa
+CREATE TABLE Estampa (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Diseño VARCHAR(100),
+    MetrosDisponibles DECIMAL(10,2),
+    CantidadUtilizada DECIMAL(10,2)
+);
 
--- Insertar datos en MateriaPrimaProductoVenta
-INSERT INTO MateriaPrimaProductoVenta (ID_MaterialPrima, ID_ProductoVenta, CantidadUtilizada)
-VALUES (1, 1, 1.0),  -- Remera blanca M usada en ProductoVenta 1
-       (2, 1, 1.0);  -- Remera negra L usada en ProductoVenta 1
+-- Tabla ProductoVenta
+CREATE TABLE ProductoVenta (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Tipo VARCHAR(50),
+    PrecioVenta DECIMAL(10,2),
+    CostoProduccion DECIMAL(10,2),
+    StockVenta INT,
+    EstampaID INT,
+    FOREIGN KEY (EstampaID) REFERENCES Estampa(ID)
+);
 
-DESCRIBE AlertaStock;
+-- Tabla AlertaStock
+CREATE TABLE AlertaStock (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Tipo VARCHAR(50),
+    NivelCriticoStock INT,
+    FechaGeneracion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ProductoVentaID INT,
+    MateriaPrimaID INT,
+    FOREIGN KEY (ProductoVentaID) REFERENCES ProductoVenta(ID),
+    FOREIGN KEY (MateriaPrimaID) REFERENCES MateriaPrima(ID)
+);
 
--- Insertar datos en AlertaStock
-INSERT INTO AlertaStock (Tipo, NivelCriticoStock, FechaGeneracion, ProductoVentaID, MateriaPrimaID)
-VALUES ('Bajo stock', 10, NOW(), 1, NULL),  -- Alerta para ProductoVenta 1
-       ('Bajo stock', 20, NOW(), NULL, 1);  -- Alerta para MateriaPrima 1
-       
-       
-       
-INSERT INTO AlertaStock (Tipo, NivelCriticoStock, FechaGeneracion, ProductoVentaID, MateriaPrimaID)
-VALUES ('Bajo stock', 10, NOW(), 1, NULL),  -- Alerta para ProductoVenta 1
-       ('Bajo stock', 20, NOW(), NULL, 1);  -- Alerta para MateriaPrima 1
-       
-       
-       SELECT * FROM AlertaStock;
-       
-       SELECT * FROM AlertaStock
-WHERE ProductoVentaID = 1;
+-- Tabla intermedia MateriaPrimaEstampa
+CREATE TABLE MateriaPrimaEstampa (
+    ID_MaterialPrima INT,
+    ID_Estampa INT,
+    CantidadUtilizada DECIMAL(10, 2),
+    PRIMARY KEY (ID_MaterialPrima, ID_Estampa),
+    FOREIGN KEY (ID_MaterialPrima) REFERENCES MateriaPrima(ID),
+    FOREIGN KEY (ID_Estampa) REFERENCES Estampa(ID)
+);
 
-SELECT * FROM AlertaStock
-WHERE MateriaPrimaID = 1;
-       
-SELECT pv.ID AS ProductoVentaID, pv.Tipo AS Producto, mp.Tipo AS MateriaPrima
-FROM ProductoVenta pv
-JOIN MateriaPrimaProductoVenta mppv ON pv.ID = mppv.ID_ProductoVenta
-JOIN MateriaPrima mp ON mppv.ID_MaterialPrima = mp.ID;
+-- Tabla intermedia MateriaPrimaProductoVenta
+CREATE TABLE MateriaPrimaProductoVenta (
+    ID_MaterialPrima INT,
+    ID_ProductoVenta INT,
+    CantidadUtilizada DECIMAL(10, 2),
+    PRIMARY KEY (ID_MaterialPrima, ID_ProductoVenta),
+    FOREIGN KEY (ID_MaterialPrima) REFERENCES MateriaPrima(ID),
+    FOREIGN KEY (ID_ProductoVenta) REFERENCES ProductoVenta(ID)
+);
+
+-- Tabla Usuario
+CREATE TABLE Usuario (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(100),
+    Rol ENUM('Admin', 'Vendedor')
+);
+
+-- Tabla Venta
+CREATE TABLE Venta (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    Fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    TipoVenta ENUM('Online', 'Presencial'),
+    TotalVenta DECIMAL(10,2),
+    UsuarioID INT,
+    FOREIGN KEY (UsuarioID) REFERENCES Usuario(ID)
+);
+
+-- Tabla DetalleVenta
+CREATE TABLE DetalleVenta (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID_venta INT,
+    ID_producto_venta INT,
+    Cantidad_vendida INT,
+    FechaVentaRegistro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ID_venta) REFERENCES Venta(ID),
+    FOREIGN KEY (ID_producto_venta) REFERENCES ProductoVenta(ID)
+);
