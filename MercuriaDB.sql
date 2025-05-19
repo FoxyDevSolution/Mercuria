@@ -15,9 +15,10 @@ CREATE TABLE MateriaPrima (
 -- Tabla Estampa
 CREATE TABLE Estampa (
     ID INT AUTO_INCREMENT PRIMARY KEY,
-    Diseño VARCHAR(100),
-    MetrosDisponibles DECIMAL(10,2),
-    CantidadUtilizada DECIMAL(10,2)
+    Nombre VARCHAR(100),
+    Descripcion TEXT,
+    Stock INT,
+    FechaCreacion DATE
 );
 
 -- Tabla ProductoVenta
@@ -26,9 +27,16 @@ CREATE TABLE ProductoVenta (
     Tipo VARCHAR(50),
     PrecioVenta DECIMAL(10,2),
     CostoProduccion DECIMAL(10,2),
-    StockVenta INT,
-    EstampaID INT,
-    FOREIGN KEY (EstampaID) REFERENCES Estampa(ID)
+    StockVenta INT
+);
+
+-- Tabla ProductoEstampa (relaciona cada producto con una estampa usada)
+CREATE TABLE ProductoEstampa (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    id_producto INT,
+    id_estampa INT,
+    FOREIGN KEY (id_producto) REFERENCES ProductoVenta(ID),
+    FOREIGN KEY (id_estampa) REFERENCES Estampa(ID)
 );
 
 -- Tabla AlertaStock
@@ -41,16 +49,6 @@ CREATE TABLE AlertaStock (
     MateriaPrimaID INT,
     FOREIGN KEY (ProductoVentaID) REFERENCES ProductoVenta(ID),
     FOREIGN KEY (MateriaPrimaID) REFERENCES MateriaPrima(ID)
-);
-
--- Tabla intermedia MateriaPrimaEstampa
-CREATE TABLE MateriaPrimaEstampa (
-    ID_MaterialPrima INT,
-    ID_Estampa INT,
-    CantidadUtilizada DECIMAL(10, 2),
-    PRIMARY KEY (ID_MaterialPrima, ID_Estampa),
-    FOREIGN KEY (ID_MaterialPrima) REFERENCES MateriaPrima(ID),
-    FOREIGN KEY (ID_Estampa) REFERENCES Estampa(ID)
 );
 
 -- Tabla intermedia MateriaPrimaProductoVenta
