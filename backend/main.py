@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 import models
 from database import engine
-import products 
-import auth # Importamos nuestro nuevo módulo de seguridad
+from products import router_mp, router_estampas, router_productos, router_produccion
+import auth
 
 # Intentamos conectar y crear tablas en MySQL
 try:
@@ -14,7 +14,10 @@ except Exception as e:
 app = FastAPI(title="Mercuria API")
 
 # --- REGISTRO DE RUTAS (Routers) ---
-app.include_router(products.router)
+app.include_router(router_mp)
+app.include_router(router_estampas)
+app.include_router(router_productos)
+app.include_router(router_produccion)
 app.include_router(auth.router)
 
 @app.get("/")

@@ -50,7 +50,40 @@ class Estampa(EstampaBase):
 
     class Config:
         from_attributes = True
-        
+
+# --- ESQUEMAS DE PRODUCTO VENTA ---
+class ProductoVentaBase(BaseModel):
+    Tipo: str
+    PrecioVenta: float
+    CostoProduccion: float
+    StockVenta: int
+
+class ProductoVentaCreate(ProductoVentaBase):
+    pass
+
+class ProductoVenta(ProductoVentaBase):
+    ID: int
+
+    class Config:
+        from_attributes = True
+
+# --- ESQUEMAS DE PRODUCCION ---
+class RegistroProduccionBase(BaseModel):
+    ID_MateriaPrima: int
+    ID_Estampa: int
+    Cantidad: int
+    CostoTotalLote: float
+    ID_ProductoVenta: int
+
+class RegistroProduccionCreate(RegistroProduccionBase):
+    pass
+
+class RegistroProduccion(RegistroProduccionBase):
+    ID: int
+    FechaProduccion: datetime
+
+    class Config:
+        from_attributes = True
 
 # Scheme for Login
 class UsuarioLogin(BaseModel):
