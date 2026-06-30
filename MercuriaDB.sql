@@ -39,6 +39,54 @@ CREATE TABLE ProductoEstampa (
     FOREIGN KEY (id_estampa) REFERENCES Estampa(ID)
 );
 
+-- Tabla RegistroProduccion
+CREATE TABLE RegistroProduccion (
+    ID INT AUTO_INCREMENT PRIMARY KEY,
+    ID_MateriaPrima INT, /* La remera base usada */
+    ID_Estampa INT,      /* El diseño utilizado */
+    Cantidad INT,        /* Cuántas remeras se estamparon en este lote */
+    CostoTotalLote DECIMAL(10,2), /* Costo total: remera + estampa */
+    ID_ProductoVenta INT, /* El producto terminado generado */
+    FechaProduccion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ID_MateriaPrima) REFERENCES MateriaPrima(ID),
+    FOREIGN KEY (ID_Estampa) REFERENCES Estampa(ID),
+    FOREIGN KEY (ID_ProductoVenta) REFERENCES ProductoVenta(ID)
+);
+
+-- Trigger para cálculo de costo promedio ponderado automático
+DELIMITER //
+CREATE TRIGGER After_Insert_RegistroProduccion
+AFTER INSERT ON RegistroProduccion
+FOR EACH ROW
+BEGIN
+    DECLARE v_ExistingQuantity INT;
+    DECLARE v_ExistingUnitCost DECIMAL(10,2);
+    DECLARE v_NewTotalQuantity INT;
+    DECLARE v_NewAverageUnitCost DECIMAL(10,2);
+
+    -- Obtener valores actuales del producto
+    SELECT StockVenta, CostoProduccion INTO v_ExistingQuantity, v_ExistingUnitCost
+    FROM ProductoVenta
+    WHERE ID = NEW.ID_ProductoVenta;
+
+    -- Calcular nueva cantidad total
+    SET v_NewTotalQuantity = v_ExistingQuantity + NEW.Cantidad;
+
+    -- Calcular costo promedio ponderado
+    IF v_NewTotalQuantity > 0 THEN
+        SET v_NewAverageUnitCost = ((v_ExistingQuantity * IFNULL(v_ExistingUnitCost, 0)) + NEW.CostoTotalLote) / v_NewTotalQuantity;
+    ELSE
+        SET v_NewAverageUnitCost = NEW.CostoTotalLote / NEW.Cantidad;
+    END IF;
+
+    -- Actualizar el costo en la tabla ProductoVenta
+    UPDATE ProductoVenta
+    SET CostoProduccion = v_NewAverageUnitCost
+    WHERE ID = NEW.ID_ProductoVenta;
+END;
+//
+DELIMITER ;
+
 -- Tabla AlertaStock
 CREATE TABLE AlertaStock (
     ID INT AUTO_INCREMENT PRIMARY KEY,
