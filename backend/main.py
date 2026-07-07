@@ -4,10 +4,10 @@ from database import engine
 from products import router_mp, router_estampas, router_productos, router_produccion
 import auth
 
-# Intentamos conectar y crear tablas en MySQL
+# Intentamos conectar y crear tablas
 try:
     models.Base.metadata.create_all(bind=engine)
-    print("¡Conexión a MySQL exitosa!")
+    print("¡Conexión a la base de datos exitosa!")
 except Exception as e:
     print(f"Error de conexión: {e}")
 
