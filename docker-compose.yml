@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mercuria_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: mercuria
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  api:
+    build: ./backend
+    container_name: mercuria_api
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: mysql+mysqlconnector://root:root123@db:3306/mercuria
+
+  web:
+    build: ./frontend/MercuriaWeb
+    container_name: mercuria_web
+    ports:
+      - "3000:80"
+
+volumes:
+  mysql_data:
