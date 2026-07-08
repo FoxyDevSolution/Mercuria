@@ -27,11 +27,14 @@ def register_user(usuario: schemas.UsuarioCreate, db: Session = Depends(get_db))
 # 2. LOGIN: Para verificar quién entra
 @router.post("/login")
 def login(usuario: schemas.UsuarioLogin, db: Session = Depends(get_db)):
+    print(f"DEBUG: Intentando loguear usuario: {usuario.Nombre}")
     db_user = db.query(models.Usuario).filter(models.Usuario.Nombre == usuario.Nombre).first()
     
     if not db_user:
+        print(f"DEBUG: Usuario {usuario.Nombre} no encontrado en la DB")
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
+    print(f"DEBUG: Usuario encontrado: {db_user.Nombre}")
     # Devolvemos los datos del usuario para que el Frontend sepa qué mostrar
     return {
         "message": "Login exitoso",

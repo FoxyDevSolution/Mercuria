@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import models
 from database import engine
 from products import router_mp, router_estampas, router_productos, router_produccion
@@ -12,6 +13,15 @@ except Exception as e:
     print(f"Error de conexión: {e}")
 
 app = FastAPI(title="Mercuria API")
+
+# Configurar CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Tu frontend local
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- REGISTRO DE RUTAS (Routers) ---
 app.include_router(router_mp)
