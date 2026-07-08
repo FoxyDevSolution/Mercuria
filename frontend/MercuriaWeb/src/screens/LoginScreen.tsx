@@ -11,11 +11,12 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     try {
-      const data = await login({ username, password });
-      signIn(data.access_token);
+      const data = await login({ Nombre: username });
+      signIn(data.usuario.Nombre);
       navigate('/');
-    } catch (error) {
-      alert('Usuario o contraseña incorrectos');
+    } catch (error: any) {
+      console.log('Error de login:', error.response?.data || error.message);
+      alert(`Error: ${error.response?.data?.detail || error.message}`);
     }
   };
 

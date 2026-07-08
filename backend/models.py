@@ -7,7 +7,7 @@ class Usuario(Base):
     __tablename__ = "Usuario"
     ID = Column(Integer, primary_key=True, index=True)
     Nombre = Column(String(100))
-    Rol = Column(Enum('Admin', 'Vendedor'))
+    Rol = Column(Enum('Admin', 'Vendedor', name='rol_enum'))
     
     ventas = relationship("Venta", back_populates="usuario")
 
@@ -97,7 +97,7 @@ class Venta(Base):
     __tablename__ = "Venta"
     ID = Column(Integer, primary_key=True, index=True)
     Fecha = Column(TIMESTAMP, server_default=func.now())
-    TipoVenta = Column(Enum('Online', 'Presencial'))
+    TipoVenta = Column(Enum('Online', 'Presencial', name='tipo_venta_enum'))
     TotalVenta = Column(DECIMAL(10, 2))
     UsuarioID = Column(Integer, ForeignKey("Usuario.ID"))
     
